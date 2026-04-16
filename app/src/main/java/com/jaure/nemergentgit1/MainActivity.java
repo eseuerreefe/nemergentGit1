@@ -9,6 +9,8 @@ import android.provider.MediaStore;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -18,6 +20,10 @@ public class MainActivity extends AppCompatActivity {
     DatabaseHelper dbHelper;
     String rutaActual;
 
+    FusedLocationProviderClient clienteGps;
+    double latActual = 0;
+    double lonActual = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,7 +31,8 @@ public class MainActivity extends AppCompatActivity {
 
         dbHelper = new DatabaseHelper(this);
 
-        //Pedirle permiso al usuario al abrir la app
+        clienteGps = LocationServices.getFusedLocationProviderClient(this);
+
         ActivityCompat.requestPermissions(this, new String[]{
                 Manifest.permission.CAMERA,
                 Manifest.permission.ACCESS_FINE_LOCATION,
@@ -35,8 +42,22 @@ public class MainActivity extends AppCompatActivity {
         }, 100);
 
         findViewById(R.id.btnCamara).setOnClickListener(v -> {
+            sacarLocalizacion();
             abrirCamara();
         });
+    }
+
+    private void sacarLocalizacion() {
+        try {
+            clienteGps.getLastLocation().addOnSuccessListener(this, loc -> {
+                if (loc != null) {
+                    latActual = loc.getLatitude();
+                    lonActual = loc.getLongitude();
+                }
+            });
+        } catch (SecurityException e) {
+
+        }
     }
 
     private void abrirCamara() {
@@ -62,8 +83,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (requestCode == 1 && resultCode == RESULT_OK) {
             String fecha = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-
-            Foto f = new Foto(0, fecha, rutaActual, 0.0, 0.0);
+            Foto f = new Foto(0, fecha, rutaActual, latActual, lonActual);
             dbHelper.insertarFoto(f);
         }
     }
