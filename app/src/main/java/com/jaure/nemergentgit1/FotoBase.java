@@ -11,7 +11,6 @@ public class FotoBase {
         fechacaptura = fecha;
         rutafoto = ruta;
     }
-    //prueba
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
