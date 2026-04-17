@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">NemergentGit1</string>
+    <string name="btn_camara">Sacar Foto</string>
+    <string name="btn_ping">Herramienta Ping</string>
 </resources>

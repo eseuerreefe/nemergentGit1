@@ -15,7 +15,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Foto" />
+            android:text="@string/btn_camara" />
 
         <Button
             android:id="@+id/btnPing"
@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginLeft="10dp"
-            android:text="Ping" />
+            android:text="@string/btn_ping" />
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
