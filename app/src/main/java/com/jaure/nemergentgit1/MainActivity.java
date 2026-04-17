@@ -51,6 +51,9 @@ public class MainActivity extends AppCompatActivity {
             sacarLocalizacion();
             abrirCamara();
         });
+        findViewById(R.id.btnPing).setOnClickListener(v -> {
+            new PingDialogFragment().show(getSupportFragmentManager(), "ping");
+        });
 
         cargarFotos();
     }
