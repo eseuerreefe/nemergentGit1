@@ -9,20 +9,24 @@ import android.provider.MediaStore;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     DatabaseHelper dbHelper;
     String rutaActual;
-
     FusedLocationProviderClient clienteGps;
     double latActual = 0;
     double lonActual = 0;
+    RecyclerView recyclerView;
+    FotoAdapter adaptador;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,8 +34,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         dbHelper = new DatabaseHelper(this);
-
         clienteGps = LocationServices.getFusedLocationProviderClient(this);
+
+        recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         ActivityCompat.requestPermissions(this, new String[]{
                 Manifest.permission.CAMERA,
@@ -45,6 +51,8 @@ public class MainActivity extends AppCompatActivity {
             sacarLocalizacion();
             abrirCamara();
         });
+
+        cargarFotos();
     }
 
     private void sacarLocalizacion() {
@@ -82,9 +90,36 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == 1 && resultCode == RESULT_OK) {
+            sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File(rutaActual))));
+
             String fecha = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
             Foto f = new Foto(0, fecha, rutaActual, latActual, lonActual);
             dbHelper.insertarFoto(f);
+
+            cargarFotos();
+        }
+    }
+
+    private void cargarFotos() {
+        List<Foto> fotosBd = dbHelper.obtenerTodasLasFotos();
+
+        if (adaptador == null) {
+            adaptador = new FotoAdapter(this, fotosBd, new FotoAdapter.OnFotoClickListener() {
+                @Override
+                public void onFotoClick(Foto f, int pos) {
+
+                }
+
+                @Override
+                public void onBorrarClick(Foto f, int pos) {
+                    dbHelper.borrarFoto(f.getId());
+                    new File(f.getRutafoto()).delete();
+                    cargarFotos();
+                }
+            });
+            recyclerView.setAdapter(adaptador);
+        } else {
+            adaptador.refrescar(fotosBd);
         }
     }
 }
