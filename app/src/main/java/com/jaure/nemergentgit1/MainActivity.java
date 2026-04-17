@@ -107,7 +107,12 @@ public class MainActivity extends AppCompatActivity {
             adaptador = new FotoAdapter(this, fotosBd, new FotoAdapter.OnFotoClickListener() {
                 @Override
                 public void onFotoClick(Foto f, int pos) {
-
+                    Intent i = new Intent(MainActivity.this, VistaFotoActivity.class);
+                    i.putExtra("ruta_foto", f.getRutafoto());
+                    i.putExtra("fecha", f.getFechacaptura());
+                    i.putExtra("lat", f.getLatitud());
+                    i.putExtra("lon", f.getLongitud());
+                    startActivity(i);
                 }
 
                 @Override
